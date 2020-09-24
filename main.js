@@ -1,3 +1,4 @@
+/// <reference path="C:/Users/Artur/AppData/Local/Screeps/scripts/ScreepsAutocomplete/_references.js" />
 var roleHarvester = require('role.harvester');
 var roleUpgrader = require('role.upgrader');
 var roleBuilder = require('role.builder');
@@ -16,26 +17,26 @@ module.exports.loop = function () {
             console.log('Clearing non-existing creep memory:', name);
         }
     }
-    if(300 >= Game.spawns[TargetSpawner].store[RESOURCE_ENERGY]) { //Do we have enough energy to build?
+    if(Game.spawns[TargetSpawner].store[RESOURCE_ENERGY] >= 300) { //Do we have enough energy to build?
         var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
         var upgrader = _.filter(Game.screeps, (creep) => creep.memory.role == 'upgrader');
         var builder = _.filter(Game.screeps, (creep) => creep.memory.role == 'builder');
         if(harvesters.length < TargetHarvesters) {
-            SpawnCreep('harvester')
+            SpawnCreep('harvester', [WORK, CARRY, MOVE]);
         }
         else if(upgrader.length < TargetUpgraders) {
-            SpawnCreep('upgrader')
+            SpawnCreep('upgrader', [WORK, CARRY, MOVE]);
         }
         else if(builder.length < TargetBuilders) {
-            SpawnCreep('builder')
+            SpawnCreep('builder', [WORK, CARRY, MOVE]);
         }
     }
     if(Game.spawns[TargetSpawner].spawning) { 
         var spawningCreep = Game.creeps[Game.spawns[TargetSpawner].spawning.name];
         Game.spawns[TargetSpawner].room.visual.text(
             '🛠️' + spawningCreep.memory.role,
-            Game.spawns[TargetSpawner].pos.x + 1, 
-            Game.spawns[TargetSpawner].pos.y, 
+            Game.spawns[TargetSpawner].pos.x + 1,
+            Game.spawns[TargetSpawner].pos.y,
             {align: 'left', opacity: 0.8});
     }
 
@@ -68,24 +69,15 @@ function defendRoom(roomName) {
 ///</summary>
 ///<param name="role">The role of the spawned creep, will automatically set body type if they are one of the basic types.</param>
 ///<param name="role">Body, will generate a body from the array given.</param>
+var CreepNumberIncrement = 0
 function SpawnCreep(role, body = []) {
-    var newName = role + Game.time;
-    console.log('Spawning new creep' + newName);
-    var BasicRoles = ['builder', 'harvester', 'upgrader']
-    if(body.length)
-        console.log('SpawnCreep failed due to empty body list')
+    var newName = role + CreepNumberIncrement;
+    console.log('Attempting to spawn' + newName);
+    if(!body.length) {
+        console.log('SpawnCreep failed due to empty body list');
         return;
-    if(body.len = 3) {
-        switch(role) {
-            case BasicRoles:
-                Game.spawns[TargetSpawner].spawnCreep([WORK, CARRY, MOVE], newName, 
-                    {memory: {role: role}});
-                return;
-            default:
-                Game.spawns[TargetSpawner].spawnCreep([body[0], body[1], body[2]], newName, 
-                    {memory: {role: role}});
-        }
-    } else {
-        Game.spawns[TargetSpawner].spawnCreep([body], newName, {memory: {role: role}});
     }
+    Game.spawns[TargetSpawner].spawnCreep([body[0], body[1], body[2]], newName, 
+    {memory: {role: role}});
+    CreepNumberIncrement = CreepNumberIncrement + 1;
 };
